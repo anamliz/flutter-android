@@ -1,0 +1,105 @@
+import 'package:flutter/material.dart';
+
+import 'signup_page.dart';
+
+import 'login_page.dart';
+
+class Landing extends StatelessWidget {
+  const Landing({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('HiddenHaven'),
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          margin: const EdgeInsets.all(20), // Add margin around the Column
+          child: Padding(
+            padding: const EdgeInsets.all(8.0), // Add padding inside the Column
+
+        child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          
+         const Text('Uncovering Earth’s hidden ecological gem and natural treasure. ',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+              GestureDetector(
+                onTap: (){
+                  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => const LoginPage(),
+    ),
+  );
+                },
+                child: const Image(
+                  image: NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzb6A5q16lkAUfturiK-flSBUmqiu0c81jcw&usqp=CAU'),
+
+                            width: 340,     // Width of the image
+                            height: 600,    // Height of the image
+                            fit: BoxFit.contain,
+                          ),
+              ),
+               
+
+         // SizedBox(height: 2), // Add spacing between image and text
+          const Text('Embark on a journey of Exploration, where you will delve into unique biome',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          
+            Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    Expanded(
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const LoginPage(),
+              ),
+            );
+          },
+          child: const Text('Login'),
+        ),
+      ),
+    ),
+    const SizedBox(width: 16.0), // Add space between buttons if needed
+    Expanded(
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const SignupPage(),
+              ),
+            );
+          },
+          child: const Text('Sign Up'),
+        ),
+      ),
+    ),
+  ],
+),
+
+        ],
+      ),
+          ),
+      ),
+      ),
+    );
+  }
+}
+
+
+
