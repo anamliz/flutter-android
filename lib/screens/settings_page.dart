@@ -1,31 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:hidden/widgets/common_scaffold.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(MyApp());
-}
+import '../model/users.dart';
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    
-    return MaterialApp(
-      title: 'Settings Page',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: SettingsPage(),
-    );
-  }
-}
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+   List<Map<String, dynamic>> _placesList = [];
   late SharedPreferences _prefs;
   String selectedTheme = 'Light';
   String selectedLanguage = 'English';
@@ -61,17 +49,15 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Settings'),
-      ),
+    return CommonScaffold(
+      
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
-              title: Text('Theme'),
+              title: const Text('Theme'),
               trailing: DropdownButton<String>(
                 value: selectedTheme,
                 onChanged: (value) {
@@ -88,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             ListTile(
-              title: Text('Language'),
+              title: const Text('Language'),
               trailing: DropdownButton<String>(
                 value: selectedLanguage,
                 onChanged: (value) {
@@ -105,7 +91,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             SwitchListTile(
-              title: Text('Notifications'),
+              title: const Text('Notifications'),
               value: isNotificationsEnabled,
               onChanged: (value) {
                 setState(() {
@@ -114,7 +100,7 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
             SwitchListTile(
-              title: Text('Dark Mode'),
+              title: const Text('Dark Mode'),
               value: isDarkModeEnabled,
               onChanged: (value) {
                 setState(() {
@@ -123,7 +109,7 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
             SwitchListTile(
-              title: Text('Two-Factor Authentication'),
+              title: const Text('Two-Factor Authentication'),
               value: isTwoFactorAuthEnabled,
               onChanged: (value) {
                 setState(() {
@@ -131,14 +117,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 });
               },
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _saveSettings,
-              child: Text('Save Settings'),
+              child: const Text('Save Settings'),
             ),
           ],
         ),
-      ),
+      ), currentIndex: 3, userFirstName: user.userfirstName, places: _placesList, biomes: [], tundras: [],
     );
   }
 }

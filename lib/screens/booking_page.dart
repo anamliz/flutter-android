@@ -193,7 +193,7 @@ import 'accommodation_page.dart';
 class BookingPage extends StatefulWidget {
   final selectedHotel;
 
-  const BookingPage({Key? key, required this.selectedHotel}) : super(key: key);
+  const BookingPage({Key? key, required this.selectedHotel, required Map<String, dynamic> hotel}) : super(key: key);
 
   @override
   _BookingPageState createState() => _BookingPageState();

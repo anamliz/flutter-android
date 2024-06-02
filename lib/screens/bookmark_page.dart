@@ -37,10 +37,13 @@ class BookmarkPage extends StatelessWidget {
 
 
 import 'package:flutter/material.dart';
+import 'package:hidden/widgets/common_scaffold.dart';
 import 'package:hive/hive.dart';
 import 'package:hidden/model/biome.dart';
 import 'package:hidden/model/place.dart';
 import 'package:hidden/model/tundra.dart';
+
+import '../model/users.dart';
 
 class BookmarkPage extends StatefulWidget {
    final List<Place> places;
@@ -48,8 +51,7 @@ class BookmarkPage extends StatefulWidget {
      final List<Biome> biomes;
 
   //const BookmarkPage({super.key});
-     const BookmarkPage({Key? key, required this.places,required this.tundras,required this.biomes}) 
-     : super(key: key);
+     const BookmarkPage({super.key, required this.places,required this.tundras,required this.biomes});
  
 
   @override
@@ -57,6 +59,8 @@ class BookmarkPage extends StatefulWidget {
 }
 
 class _BookmarkPageState extends State<BookmarkPage> {
+  List<Map<String, dynamic>> _placesList = [];
+
   late Box<Place> _placesBox;
   late Box<Biome> _biomesBox;
   late Box<Tundra> _tundrasBox;
@@ -126,31 +130,29 @@ class _BookmarkPageState extends State<BookmarkPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Bookmarked'),
-      ),
+    return CommonScaffold(
+     
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
             child: Text(
               ' Places',
               style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
             ),
           ),
           Expanded(child: _buildBookmarkedPlaceList(_placesBox.values.toList())),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
             child: Text(
               ' Biomes',
               style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
             ),
           ),
           Expanded(child: _buildBookmarkedBiomeList(_biomesBox.values.toList())),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
             child: Text(
               ' Tundras',
               style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
@@ -158,7 +160,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
           ),
           Expanded(child: _buildBookmarkedTundraList(_tundrasBox.values.toList())),
         ],
-      ),
+      ), currentIndex:2, userFirstName: user.userfirstName, places: _placesList, tundras: [], biomes: [],
     );
   }
 }

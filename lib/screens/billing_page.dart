@@ -87,13 +87,13 @@ class _PaymentPageState extends State<PaymentPage> {
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MaterialApp(home: PaymentPage(bookedItems: []))); // Pass an empty list initially
+  runApp(const MaterialApp(home: PaymentPage(bookedItems: []))); // Pass an empty list initially
 }
 
 class PaymentPage extends StatefulWidget {
   final List<Map<String, dynamic>> bookedItems;
 
-  PaymentPage({required this.bookedItems});
+  const PaymentPage({super.key, required this.bookedItems});
 
   @override
   State<PaymentPage> createState() => _PaymentPageState();

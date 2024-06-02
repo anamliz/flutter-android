@@ -42,24 +42,26 @@ class Hotel extends HiveObject {
     this.isLiked = false,
     this.isBookmarked = false,
      this.rating = 0,
-    this.comments = const [],
+    this.comments = const [], 
     
   });
 
-  factory Hotel.fromJson(Map<String, dynamic> json) {
-    return Hotel(
-      json['id'],
-      json['name'],
-      json['description'],
-      json['price'],
-      json['imageurl'],
-      isLiked: json['isLiked'] ?? false,
-      isBookmarked: json['isBookmarked'] ?? false,
-      rating: json['rating'] ?? 0,
-      comments: json['comments'] ?? [],
+ 
 
-    );
-  }
+factory Hotel.fromJson(Map<String, dynamic> json) {
+  return Hotel(
+    json['id'] as int, // Parse id as an integer
+    json['name'] as String,
+    json['description'] as String,
+    double.parse(json['price'] as String), // Parse price as a double
+    json['imageurl'] as String,
+    isLiked: json['isLiked'] ?? false,
+    isBookmarked: json['isBookmarked'] ?? false,
+    rating: json['rating'] ?? 0,
+    comments: List<String>.from(json['comments'] ?? []), // Ensure comments is List<String>
+  );
+}
+
 
   Map<String, dynamic> toJson() {
     return {
@@ -77,7 +79,8 @@ class Hotel extends HiveObject {
   }
 }
 
-List<Hotel> hotels = [
+
+/*List<Hotel> hotels = [
   Hotel(1, "Nairobi Serena",  "Luxurious hotel in Nairobi Kenya", 200, "H1.jpg"),
   Hotel(2, "Sarova Stanley",  "Iconic hotel in the heart of Nairobi kenya", 1000,  "H2.jpg"),
   Hotel(3, "Villa Rosa Kempinski", "Elegant hotel with modern amenities in Kenya", 1000.00, "H3.jpg"),
@@ -89,4 +92,4 @@ List<Hotel> hotels = [
   Hotel(9, "Tribe Hotel",  "Unique cultural experience", 500,  "H9.jpg"),
   Hotel(10, "Safari Park",  "Wildlife and nature retreat", 500,  "H10.jpg"),
   Hotel(11, "InterContinental",  "International luxury in Nairobi", 500,  "H11.jpg"),
-];
+];*/

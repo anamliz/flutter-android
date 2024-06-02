@@ -1,6 +1,7 @@
 
 import 'package:bottom_bar/bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:hidden/widgets/common_scaffold.dart';
 import '../model/gameparks.dart';
 import '../model/users.dart';
 
@@ -18,51 +19,11 @@ class Gameparkpage extends StatefulWidget {
 }
 
 class _GameparkpageState extends State<Gameparkpage> {
-  int _currentPage = 0;
-  final PageController _pageController = PageController();
-
+  
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 1, 73, 4),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Row(children: [
-              Text(
-                "Gamepark",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ]),
-            Row(
-              children: [
-                Column(
-                  children: [
-                    const CircleAvatar(
-                      backgroundColor: Colors.white,
-                      radius: 12,
-                      child: Icon(Icons.person, color: Colors.black),
-                    ),
-                    const SizedBox(width: 2.0),
-                    Text(
-                      user.userfirstName,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return CommonScaffold(
+      
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -70,41 +31,8 @@ class _GameparkpageState extends State<Gameparkpage> {
             ...Parks.map((park) => ParkCard(park: park)),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomBar(
-        selectedIndex: _currentPage,
-        onTap: (int index) {
-          if (index == 0) {
-            // Add functionality for home icon navigation
-            Navigator.pop(context); // Navigate back to the previous screen
-          } else {
-          _pageController.jumpToPage(index);
-          setState(() => _currentPage = index);
-          }
-        },
-        items: <BottomBarItem>[
-          const BottomBarItem(
-            icon: Icon(Icons.home),
-            title: Text('Home'),
-            activeColor: Colors.blue,
-          ),
-          const BottomBarItem(
-            icon: Icon(Icons.favorite),
-            title: Text('Favorites'),
-            activeColor: Colors.red,
-          ),
-          BottomBarItem(
-            icon: const Icon(Icons.bookmark),
-            title: const Text('Bookmark'),
-            activeColor: Colors.greenAccent.shade700,
-          ),
-          const BottomBarItem(
-            icon: Icon(Icons.settings),
-            title: Text('Settings'),
-            activeColor: Colors.orange,
-          ),
-        ],
-      ),
+      ), currentIndex:6, userFirstName: user.userfirstName, places: [], tundras: [], biomes: [],
+      
     );
   }
 }

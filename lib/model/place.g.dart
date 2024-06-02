@@ -21,8 +21,8 @@ class PlaceAdapter extends TypeAdapter<Place> {
       fields[1] as String,
       fields[2] as String,
       fields[3] as double,
-      fields[4] as int,
       fields[5] as String,
+      rating: fields[4] as int,
       isLiked: fields[6] as bool,
       isBookmarked: fields[7] as bool,
     );
@@ -33,7 +33,7 @@ class PlaceAdapter extends TypeAdapter<Place> {
     writer
       ..writeByte(8)
       ..writeByte(0)
-      ..write(obj.placeId)
+      ..write(obj.id)
       ..writeByte(1)
       ..write(obj.placeName)
       ..writeByte(2)

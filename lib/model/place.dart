@@ -6,7 +6,7 @@ part 'place.g.dart';
 class Place extends HiveObject {
   
   @HiveField(0)
-  final int placeId;
+  final int id;
 
   @HiveField(1)
   final String placeName;
@@ -18,7 +18,7 @@ class Place extends HiveObject {
   final double placePrice;
 
   @HiveField(4)
-  final int rating;
+  int rating;
 
   @HiveField(5)
   final String placeImageUrl;
@@ -30,43 +30,46 @@ class Place extends HiveObject {
   bool isBookmarked;
 
   Place(
-    this.placeId,
+    this.id,
     this.placeName,
     this.placeDescription,
     this.placePrice,
-    this.rating,
     this.placeImageUrl, {
+    this.rating = 0,
     this.isLiked = false,
     this.isBookmarked = false,
   });
 
+  
+
   factory Place.fromJson(Map<String, dynamic> json) {
     return Place(
-      json['placeid'] as int,
-      json['placename'] as String,
-      json['placedescription'] as String,
-      json['placeprice'] as double,
-      json['rating'] as int,
-      json['placeimageurl'] as String,
-      isLiked: json['isLiked'] as bool? ?? false,
-      isBookmarked: json['isBookmarked'] as bool? ?? false,
+      int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      json['placeName'] as String? ?? '',
+      json['placeDescription'] as String? ?? '',
+      double.tryParse(json['placePrice']?.toString() ?? '0.0') ?? 0.0,
+      json['placeImageUrl'] as String? ?? '',
+      rating: json['rating'] is int ? json['rating'] : int.tryParse(json['rating']?.toString() ?? '0') ?? 0,
+      isLiked: json['isLiked'] ?? false,
+      isBookmarked: json['isBookmarked'] ?? false,
     );
   }
-
+ 
+  
   Map<String, dynamic> toJson() {
     return {
-      'placeid': placeId,
+      'id':id,
       'placename': placeName,
       'placedescription': placeDescription,
       'placeprice': placePrice,
       'rating': rating,
-      'placeimageurl': placeImageUrl,
+      'placeimageurl':placeImageUrl,
       'isLiked': isLiked,
       'isBookmarked': isBookmarked,
     };
   }
 }
-
+/*
 List<Place> places = [
   Place(1, "NEWRAIN RESTAURANT", "K-ROAD JUJA", 200, 3, "hotel.jpg"),
   Place(2, "juja", " hotel", 1000, 2, "u2.jpg"),
@@ -79,5 +82,5 @@ List<Place> places = [
   Place(9, "Nanyuki", "waterfall", 500, 5, "img3.jpg"),
   Place(10, "Nanyuki", "beach", 500, 5, "r3.jpg"),
 
-];
+];*/
 

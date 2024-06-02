@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     
    // final size = MediaQuery.of(context).size;
-    return  const MaterialApp(
+    return   MaterialApp(
       //home: Gameparkpage()
      //  home: Reviewpage()
       home: HomePage()
