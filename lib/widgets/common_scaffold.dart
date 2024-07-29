@@ -1,9 +1,9 @@
 import 'package:bottom_bar/bottom_bar.dart';
 import 'package:flutter/material.dart';
-import '../model/biome.dart';
+
 import '../model/place.dart';
 import '../model/profile.dart';
-import '../model/tundra.dart';
+
 import '../screens/profile_page.dart';
 import '../screens/home_page.dart';
 import '../screens/favorites_page.dart';
@@ -16,16 +16,16 @@ class CommonScaffold extends StatefulWidget {
   final int currentIndex;
   final String userFirstName;
   final List<Map<String, dynamic>> places;
-  final List<Tundra> tundras;
-  final List<Biome> biomes;
+  
+  
 
   const CommonScaffold({super.key, 
     required this.body,
     required this.currentIndex,
     required this.userFirstName,
     required this.places,
-    required this.tundras,
-    required this.biomes,
+    
+   
   });
 
   @override
@@ -62,17 +62,13 @@ class _CommonScaffoldState extends State<CommonScaffold> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (context) => BookmarkPage(
-                    places:placesList(widget.places),
-                    tundras: widget.tundras,
-                    biomes: widget.biomes,
-                  )),
+              builder: (context) => const BookmarkPage( )),
         );
         break;
       case 3:
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => SettingsPage()),
+          MaterialPageRoute(builder: (context) => const SettingsPage()),
         );
         break;
     }

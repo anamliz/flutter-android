@@ -1,167 +1,137 @@
-/*import 'package:flutter/material.dart';
-import '../model/place.dart';
-// Import your Place model
-
-class BookmarkPage extends StatelessWidget {
-  final List<Place> places; // List of all places
-
-  const BookmarkPage({Key? key, required this.places}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Filter out the bookmarked places
-    List<Place> bookmarkedPlaces = places.where((place) => place.isBookmarked).toList();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bookmarks'),
-      ),
-      body: ListView.builder(
-        itemCount: bookmarkedPlaces.length,
-        itemBuilder: (context, index) {
-          final place = bookmarkedPlaces[index];
-          final assetPath = 'assets/images/${place.placeImageUrl}'; // Assuming placeimageurl contains the image file name
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundImage: AssetImage(assetPath),
-            ),
-            title: Text(place.placeName),
-            subtitle: Text(place.placeDescription),
-            // Add onTap functionality as per your requirement
-          );
-        },
-      ),
-    );
-  }
-}*/
-
-
 import 'package:flutter/material.dart';
-import 'package:hidden/widgets/common_scaffold.dart';
-import 'package:hive/hive.dart';
-import 'package:hidden/model/biome.dart';
-import 'package:hidden/model/place.dart';
-import 'package:hidden/model/tundra.dart';
 
+import 'package:hive_flutter/hive_flutter.dart';
+import '../model/hotel.dart';
+import '../model/place.dart';
 import '../model/users.dart';
 
-class BookmarkPage extends StatefulWidget {
-   final List<Place> places;
-    final List<Tundra> tundras;
-     final List<Biome> biomes;
+import '../widgets/common_scaffold.dart';
 
-  //const BookmarkPage({super.key});
-     const BookmarkPage({super.key, required this.places,required this.tundras,required this.biomes});
- 
+class BookmarkPage extends StatefulWidget {
+  const BookmarkPage({super.key});
 
   @override
   _BookmarkPageState createState() => _BookmarkPageState();
 }
 
 class _BookmarkPageState extends State<BookmarkPage> {
-  List<Map<String, dynamic>> _placesList = [];
-
-  late Box<Place> _placesBox;
-  late Box<Biome> _biomesBox;
-  late Box<Tundra> _tundrasBox;
+  late Box<Place> placesBox;
+  late Box<Accommodation> _accommodationsBox;
+  
 
   @override
   void initState() {
     super.initState();
-    _placesBox = Hive.box<Place>('PlacesBox');
-    _biomesBox = Hive.box<Biome>('BiomesBox');
-    _tundrasBox = Hive.box<Tundra>('TundrasBox');
+    _openBoxes();
   }
 
-  Widget _buildBookmarkedPlaceList(List<Place> places) {
-    List<Place> bookmarkedPlaces = places.where((place) => place.isBookmarked).toList();
-    return ListView.builder(
-      itemCount: bookmarkedPlaces.length,
-      itemBuilder: (context, index) {
-        Place place = bookmarkedPlaces[index];
-        final assetPath = 'assets/images/${place.placeImageUrl}';
-        return ListTile(
-          leading: CircleAvatar(
-              backgroundImage: AssetImage(assetPath),
-            ),
-          title: Text(place.placeName),
-          subtitle: Text(place.placeDescription),
-        );
-      },
-    );
-  }
+  Future<void> _openBoxes() async {
+    placesBox = await Hive.openBox<Place>('PlacesBox');
+    _accommodationsBox = await Hive.openBox<Accommodation>('AccommodationsBox');
+  
 
-  Widget _buildBookmarkedBiomeList(List<Biome> biomes) {
-    List<Biome> bookmarkedBiomes = biomes.where((biome) => biome.isBookmarked).toList();
-    return ListView.builder(
-      itemCount: bookmarkedBiomes.length,
-      itemBuilder: (context, index) {
-        Biome biome = bookmarkedBiomes[index];
-        final assetPath = 'assets/images/${biome.imageurl}';
-        return ListTile(
-          leading: CircleAvatar(
-              backgroundImage: AssetImage(assetPath),
-            ),
-          title: Text(biome.biomename),
-          subtitle: Text(biome.description),
-        );
-      },
-    );
-    
-  }
-
-  Widget _buildBookmarkedTundraList(List<Tundra> tundras) {
-    List<Tundra> bookmarkedTundras = tundras.where((tundra) => tundra.isBookmarked).toList();
-    return ListView.builder(
-      itemCount: bookmarkedTundras.length,
-      itemBuilder: (context, index) {
-        Tundra tundra = bookmarkedTundras[index];
-        final assetPath = 'assets/images/${tundra.imageurl}';
-        return ListTile(
-          leading: CircleAvatar(
-              backgroundImage: AssetImage(assetPath),
-            ),
-          title: Text(tundra.tundraname),
-          subtitle: Text(tundra.description),
-        );
-      },
-    );
+    setState(() {}); // Trigger a rebuild after the boxes are opened
   }
 
   @override
   Widget build(BuildContext context) {
-    return CommonScaffold(
+    List<Place> BookmarkedPlaces = placesBox.values.where((place) => place.isBookmarked).toList();
+    List<Accommodation> BookmarkedAccommodations = _accommodationsBox.values.where((accommodation) => accommodation.isBookmarked).toList();
      
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+       
+    return CommonScaffold(
+      currentIndex: 2,
+      userFirstName: user.userfirstName,
+      places: BookmarkedPlaces.map((place) => place.toJson()).toList(),
+      body: ListView(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              ' Places',
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(child: _buildBookmarkedPlaceList(_placesBox.values.toList())),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              ' Biomes',
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(child: _buildBookmarkedBiomeList(_biomesBox.values.toList())),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              ' Tundras',
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(child: _buildBookmarkedTundraList(_tundrasBox.values.toList())),
+          _buildPlaceList(BookmarkedPlaces),
+          _buildAccommodationList(BookmarkedAccommodations),
+           
+          
         ],
-      ), currentIndex:2, userFirstName: user.userfirstName, places: _placesList, tundras: [], biomes: [],
+      ),
+    );
+  }
+
+  Widget _buildPlaceList(List<Place> places) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            'isBookmarked Places',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: places.length,
+          itemBuilder: (context, index) {
+            Place place = places[index];
+            return ListTile(
+              leading: CircleAvatar(
+                backgroundImage: AssetImage('assets/images/${place.placeImageUrl}'),
+              ),
+              title: Text(place.placeName),
+              subtitle: Text(place.placeDescription),
+              trailing: IconButton(
+                icon: Icon(place.isLiked ? Icons.bookmark : Icons.bookmark_border),
+                onPressed: () {
+                  setState(() {
+                    place.isLiked = !place.isLiked;
+                    placesBox.put(place.id, place);
+                  });
+                },
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+
+
+  Widget _buildAccommodationList(List<Accommodation> accommodations) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            'isBookmarked Accommodations',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: accommodations.length,
+          itemBuilder: (context, index) {
+            Accommodation accommodation = accommodations[index];
+            return ListTile(
+             leading: CircleAvatar(
+                backgroundImage: AssetImage('assets/images/${accommodation.imageUrl}'),
+              ),
+              title: Text(accommodation.name),
+              subtitle: Text(accommodation.cityName),
+              trailing: IconButton(
+                icon: Icon(accommodation.isLiked ? Icons.bookmark : Icons.bookmark_border),
+                onPressed: () {
+                  setState(() {
+                    accommodation.isLiked = !accommodation.isLiked;
+                    _accommodationsBox.put(accommodation.destId, accommodation);
+                  });
+                },
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }
-
+  

@@ -50,15 +50,17 @@ class Hotel extends HiveObject {
 
 factory Hotel.fromJson(Map<String, dynamic> json) {
   return Hotel(
-    json['id'] as int, // Parse id as an integer
+    int.tryParse(json['id']?.toString() ?? '0') ?? 0,
     json['name'] as String,
     json['description'] as String,
     double.parse(json['price'] as String), // Parse price as a double
     json['imageurl'] as String,
-    isLiked: json['isLiked'] ?? false,
+   isLiked: json['isLiked'] ?? false,
     isBookmarked: json['isBookmarked'] ?? false,
-    rating: json['rating'] ?? 0,
-    comments: List<String>.from(json['comments'] ?? []), // Ensure comments is List<String>
+     rating: json['rating'] is int ? json['rating'] : int.tryParse(json['rating']?.toString() ?? '0') ?? 0,
+    comments: json['comments'] is List<dynamic> ? List<String>.from(json['comments']) : [json['comments']?.toString() ?? ''],
+
+    
   );
 }
 

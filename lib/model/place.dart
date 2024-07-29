@@ -69,18 +69,4 @@ class Place extends HiveObject {
     };
   }
 }
-/*
-List<Place> places = [
-  Place(1, "NEWRAIN RESTAURANT", "K-ROAD JUJA", 200, 3, "hotel.jpg"),
-  Place(2, "juja", " hotel", 1000, 2, "u2.jpg"),
-  Place(3, "Diani Beach", "white sand", 1000.00, 5, "r5.jpg"),
-  Place(4, "Mombasa", "diving", 600, 4, "img7.jpg"),
-  Place(5, "Thika", " chaina waterfall", 200, 3, "img6.jpg"),
-  Place(6, "kisumu", " beach", 1000, 2, "r1.jpg"),
-  Place(7, "Nairobi", " gamepark", 100, 3, "img1.jpg"),
-  Place(8, "karura", "waterfall", 500, 4, "img4.jpg"),
-  Place(9, "Nanyuki", "waterfall", 500, 5, "img3.jpg"),
-  Place(10, "Nanyuki", "beach", 500, 5, "r3.jpg"),
-
-];*/
 

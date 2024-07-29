@@ -1,13 +1,11 @@
-
-
 import 'package:flutter/material.dart';
-import 'package:hidden/widgets/common_scaffold.dart';
-import 'package:hive_flutter/adapters.dart';
 
-import '../model/biome.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../model/hotel.dart';
 import '../model/place.dart';
-import '../model/tundra.dart';
 import '../model/users.dart';
+
+import '../widgets/common_scaffold.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
@@ -17,34 +15,42 @@ class FavoritesPage extends StatefulWidget {
 }
 
 class _FavoritesPageState extends State<FavoritesPage> {
-  late Box<Place> _placesBox;
-  List<Map<String, dynamic>> _placesList = [];
-  late Box<Tundra> _tundrasBox;
-  late Box<Biome> _biomesBox;
+  late Box<Place> placesBox;
+  late Box<Accommodation> _accommodationsBox;
+  
 
   @override
   void initState() {
     super.initState();
-    _placesBox = Hive.box<Place>('PlacesBox');
-    _tundrasBox = Hive.box<Tundra>('TundrasBox');
-    _biomesBox = Hive.box<Biome>('BiomesBox');
+    _openBoxes();
+  }
+
+  Future<void> _openBoxes() async {
+    placesBox = await Hive.openBox<Place>('PlacesBox');
+    _accommodationsBox = await Hive.openBox<Accommodation>('AccommodationsBox');
+  
+
+    setState(() {}); // Trigger a rebuild after the boxes are opened
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Place> favoritePlaces = _placesBox.values.where((place) => place.isLiked).toList();
-    List<Tundra> favoriteTundras = _tundrasBox.values.where((tundra) => tundra.isLiked).toList();
-    List<Biome> favoriteBiomes = _biomesBox.values.where((biome) => biome.isLiked).toList();
-
+    List<Place> favoritePlaces = placesBox.values.where((place) => place.isLiked).toList();
+    List<Accommodation> favoriteAccommodations = _accommodationsBox.values.where((accommodation) => accommodation.isLiked).toList();
+     
+       
     return CommonScaffold(
-      
+      currentIndex: 1,
+      userFirstName: user.userfirstName,
+      places: favoritePlaces.map((place) => place.toJson()).toList(),
       body: ListView(
         children: [
           _buildPlaceList(favoritePlaces),
-          _buildTundraList(favoriteTundras),
-          _buildBiomeList(favoriteBiomes),
+          _buildAccommodationList(favoriteAccommodations),
+           
+          
         ],
-      ), currentIndex: 1, userFirstName: user.userfirstName, places: _placesList, tundras: [], biomes: [],
+      ),
     );
   }
 
@@ -65,13 +71,21 @@ class _FavoritesPageState extends State<FavoritesPage> {
           itemCount: places.length,
           itemBuilder: (context, index) {
             Place place = places[index];
-            final assetPath = 'assets/images/${place.placeImageUrl}'; 
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: AssetImage(assetPath),
-          ),
+            return ListTile(
+              leading: CircleAvatar(
+                backgroundImage: AssetImage('assets/images/${place.placeImageUrl}'),
+              ),
               title: Text(place.placeName),
               subtitle: Text(place.placeDescription),
+              trailing: IconButton(
+                icon: Icon(place.isLiked ? Icons.favorite : Icons.favorite_border),
+                onPressed: () {
+                  setState(() {
+                    place.isLiked = !place.isLiked;
+                    placesBox.put(place.id, place);
+                  });
+                },
+              ),
             );
           },
         ),
@@ -79,61 +93,41 @@ class _FavoritesPageState extends State<FavoritesPage> {
     );
   }
 
-  Widget _buildBiomeList(List<Biome> biomes) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text(
-            'Favorite Biomes',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-        ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: biomes.length,
-          itemBuilder: (context, index) {
-            Biome biome = biomes[index];
-            final assetPath = 'assets/images/${biome.imageurl}'; 
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: AssetImage(assetPath),
-          ),
-              title: Text(biome.biomename),
-              subtitle: Text(biome.description),
-            );
-          },
-        ),
-      ],
-    );
-  }
 
-  Widget _buildTundraList(List<Tundra> tundras) {
+
+  Widget _buildAccommodationList(List<Accommodation> accommodations) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
           padding: EdgeInsets.all(8.0),
           child: Text(
-            'Favorite Tundras',
+            'Favorite Accommodations',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: tundras.length,
+          itemCount: accommodations.length,
           itemBuilder: (context, index) {
-            Tundra tundra = tundras[index];
-              final assetPath = 'assets/images/${tundra.imageurl}'; 
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: AssetImage(assetPath),
-          ),
-              title: Text(tundra.tundraname),
-              subtitle: Text(tundra.description),
+            Accommodation accommodation = accommodations[index];
+            return ListTile(
+             leading: CircleAvatar(
+                     backgroundImage: NetworkImage('https://example.com/${accommodation.imageUrl}'), 
+                //backgroundImage: AssetImage('assets/images/${accommodation.imageUrl}'),
+              ),
+              title: Text(accommodation.name),
+              subtitle: Text(accommodation.cityName),
+              trailing: IconButton(
+                icon: Icon(accommodation.isLiked ? Icons.favorite : Icons.favorite_border),
+                onPressed: () {
+                  setState(() {
+                    accommodation.isLiked = !accommodation.isLiked;
+                    _accommodationsBox.put(accommodation.destId, accommodation);
+                  });
+                },
+              ),
             );
           },
         ),
@@ -141,3 +135,4 @@ class _FavoritesPageState extends State<FavoritesPage> {
     );
   }
 }
+  

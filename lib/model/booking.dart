@@ -1,59 +1,90 @@
-class Booking {
-  final int userId;
-  final String bookingType;
-  final int locationId;
-  final int eventId;
-  final int accommodationId;
-  final int transportId;
-  final double pricePerPerson;
-  final int numPeople;
-  final double totalPrice;
-  final String paymentMethods;
-  final String paymentStatus;
+import 'package:hive/hive.dart';
 
-  Booking({
-    required this.userId,
-    required this.bookingType,
-    required this.locationId,
-    required this.eventId,
-    required this.accommodationId,
-    required this.transportId,
-    required this.pricePerPerson,
-    required this.numPeople,
-    required this.totalPrice,
-    required this.paymentMethods,
-    required this.paymentStatus,
-  });
+part 'booking.g.dart';
+
+@HiveType(typeId:4 )
+class Booking extends HiveObject {
+
+  @HiveField(0)
+  final int booking_id;
+
+  @HiveField(1)
+  final int userid;
+
+  @HiveField(2)
+  final DateTime checkInDate;
+
+  @HiveField(3)
+  final DateTime checkOutDate;
+
+  @HiveField(4)
+  final int numAdults;
+
+  @HiveField(5)
+  final int numChildren;
+
+  @HiveField(6)
+  final int numRooms;
+
+  @HiveField(7)
+  final String roomType;
+
+  @HiveField(8)
+  final double totalPrice;
+
+  @HiveField(9)
+  final DateTime bookingDate;
+
+  @HiveField(10)
+  final String status;
+
+          
+
+  Booking(
+    this.booking_id,
+    this.userid,
+    this.checkInDate,
+    this.checkOutDate,
+    this.numAdults,
+    this.numChildren,
+    this.numRooms,
+    this.roomType,
+    this.totalPrice,
+    this.bookingDate,
+    this.status,
+  );
 
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
-      userId: json['User_id'],
-      bookingType: json['Booking_type'],
-      locationId: json['Location_id'],
-      eventId: json['Event_id'],
-      accommodationId: json['Accommodation_id'],
-      transportId: json['Transport_id'],
-      pricePerPerson: json['Price_perperson'].toDouble(),
-      numPeople: json['Num_people'],
-      totalPrice: json['Total_price'].toDouble(),
-      paymentMethods: json['P_methods'],
-      paymentStatus: json['P_status'],
+      
+      json['booking_id']as int? ?? 0,
+      json['userid'] as int? ?? 0,
+      DateTime.parse(json['checkInDate'] ?? '1970-01-01'),
+      DateTime.parse(json['checkOutDate'] ?? '1970-01-01'),
+      json['numAdults'] as int? ?? 0,
+      json['numChildren']as int? ?? 0,
+      json['numRooms']as int? ?? 0,
+      json['roomType'] as String? ?? '',
+      double.parse(json['totalPrice'].toString()),
+      DateTime.parse(json['bookingDate'] ?? '1970-01-01T00:00:00Z'),
+      json['status'] ?? 'pending',
+      
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'User_id': userId,
-      'Booking_type': bookingType,
-      'Location_id': locationId,
-      'Event_id': eventId,
-      'Accommodation_id': accommodationId,
-      'Transport_id': transportId,
-      'Price_perperson': pricePerPerson,
-      'Num_people': numPeople,
-      'Total_price': totalPrice,
-      'P_methods': paymentMethods,
-      'P_status': paymentStatus,
+      'booking_id':booking_id,
+      'userid': userid,
+      'checkInDate': checkInDate.toIso8601String(),
+      'checkOutDate': checkOutDate.toIso8601String(),
+      'numAdults': numAdults,
+      'numChildren': numChildren,
+      'numRooms': numRooms,
+      'roomType': roomType,
+      'totalPrice': totalPrice,
+      'bookingDate': bookingDate.toIso8601String(),
+      'status': status,
     };
   }
 }

@@ -10,7 +10,8 @@ import 'package:logger/logger.dart';
 import '../model/accommondation.dart'; 
 
 import '../model/users.dart';
-import 'booking_page.dart'; 
+import 'booking_page.dart';
+
 
 
 final Logger logger = Logger();
@@ -27,9 +28,8 @@ class Accommodationpage extends StatefulWidget {
 class _AccommodationpageState extends State<Accommodationpage> {
   List<String> comments = [];
   late Box<Hotel> hotelsBox;
-   //List<Map<String, dynamic>> _placesList = [];
-  List<Map<String, dynamic>> hotelList = [];// Previous:   List<Hotel> hotelList = [];
-
+   
+  List<Map<String, dynamic>> hotelList = [];
   
   bool _isLoading = true;
 
@@ -44,12 +44,12 @@ class _AccommodationpageState extends State<Accommodationpage> {
     try {
       hotelsBox = await Hive.openBox<Hotel>('hotelsBox');
       _fetchHotels();
-      // This loop was for hardcoded data, remove it as we're fetching from API now
+     
       setState(() {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error initializing data: $e');
+      logger.e('Error initializing data: $e');
     }
   }
 
@@ -80,7 +80,7 @@ class _AccommodationpageState extends State<Accommodationpage> {
         hotelsBox.put(hotel.id, hotel);
       });
     } else {
-      print('Invalid rating. Rating should be between 1 and 5.');
+      logger.w('Invalid rating. Rating should be between 1 and 5.');
     }
   }
 
@@ -102,38 +102,35 @@ Future<void> _fetchHotels() async {
               .map((item) => item as Map<String, dynamic>)
               .toList();
         });
+       logger.i('Fetched hotels: $hotelList');
 
  // Store the fetched data in Hive
-          hotelList.forEach((hotelData) {
-            // Check if 'price' is a valid numeric value
-  final double? priceNullable = hotelData['price'] as double?;
-  final double price = priceNullable ?? 0.0;
-            final hotel = Hotel(
-              hotelData['id'] as int,
-              hotelData['name'] as String,
-              hotelData['description'] as String,
-              price,
-              hotelData['imageurl'] as String,
-              isLiked: hotelData['isLiked'] as bool,
-              isBookmarked: hotelData['isBookmarked'] as bool,
-              rating: hotelData['rating'] as int,
-              comments: List<String>.from(hotelData['comments'] as List<dynamic>),
-            );
-
-            hotelsBox.put(hotel.id, hotel);
-          });
-
-
+for (var hotelData in hotelList) {
+            try {
+              final hotel = Hotel.fromJson(hotelData);
+              
+              hotelsBox.put(hotel.id, hotel);
+                logger.i('Hotel added to _hotelsBox: ${hotel.toJson()}');
+            } catch (e) {
+              logger.e('Error fetching hotels: $e');
+            }
+          }
+           logger.i('hotelsBox now has ${hotelsBox.length} entries');
+ } else {
+          throw Exception("Unable to get hotel.");
+        }
       } else {
-        throw Exception("Unable to get accommodation.");
+        logger.e('Failed to fetch hotels: ${response.statusCode}');
       }
-    } else {
-      logger.e('Failed to fetch hotels: ${response.statusCode}');
+    } catch (e) {
+      logger.e('Error fetching hotels: $e');
+       _showErrorDialog('Error fetching hotels: $e');
     }
-  } catch (e) {
-    logger.e('Error fetching hotels: $e');
+     //Print each hotel as it's being added to hotelsBox
+    // print('Hotel added to _hotelsBox: $Hotel');
   }
-}
+
+
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -162,13 +159,15 @@ Future<void> _fetchHotels() async {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: hotelList.length,
+           itemCount: hotelsBox.length,
               itemBuilder: (context, index) {
-              return HotelCard(hotel: hotelList[index]);
-             
-              
+                final hotel = hotelsBox.getAt(index);
+                if (hotel == null) {
+                  return const SizedBox(); // Return an empty widget if hotel is null
+                }
+                return HotelCard(hotel: hotel.toJson());
               },
-            ), currentIndex: 5, userFirstName: user.userfirstName, places:[], tundras: [], biomes: [],
+            ), currentIndex: 5, userFirstName: user.userfirstName, places:const [],  
 
 
             
@@ -300,45 +299,10 @@ class _HotelCardState extends State<HotelCard> {
                         fontSize: 18.0,
                       ),
                     ),
-                    
-             
-                    ElevatedButton(
-                      onPressed: () {
-                        // Navigate to the booking screen
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            //builder: (context) => BookingPage(selectedHotel: widget.hotel, hotel: {},),
-                           builder: (context) => BookingPage(selectedHotel: widget.hotel, hotel: widget.hotel),
-
-
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 1, 58, 105),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                      ),
-                      child: const Text(
-                        'BOOK NOW',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+              
                   ],
                 ),
-                const SizedBox(height: 4.0),
-                Text( widget.hotel['description'],
-                 style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18.0,
-                      ),
-                    ),
-
+               
                 const SizedBox(height: 1.0),
               Text(
   '\$${widget.hotel['price'] ?? 'N/A'}', // Use 'N/A' if price is null
@@ -378,6 +342,32 @@ Row(
               ],
             ),
           ),
+          Center(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const BookingPage(),
+                                
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 11, 66, 110),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                      ),
+                            child: const Text(
+                              'Review',
+                              style: TextStyle(
+                          fontSize: 14,
+                         color: Colors.white,
+                        ),
+                          ),
+                        ),
+                        ),
         ],
       ),
     );

@@ -33,6 +33,14 @@ class _DashboardPageState extends State<DashboardPage>
   final TextEditingController _placePriceController = TextEditingController();
   final TextEditingController _placeImageurlController = TextEditingController();
 
+
+  final TextEditingController _useridController = TextEditingController();
+  final TextEditingController _park_idController = TextEditingController();
+  final TextEditingController _booking_dateController = TextEditingController();
+  final TextEditingController _num_ticketsController = TextEditingController();
+   final TextEditingController _total_priceController = TextEditingController();
+
+
   @override
   void initState() {
     super.initState();
@@ -82,7 +90,7 @@ class _DashboardPageState extends State<DashboardPage>
           ),
         ],
 
-      ), currentIndex: 4, userFirstName: user.userfirstName, tundras: [], biomes: [], places: _placesList,
+      ), currentIndex: 4, userFirstName: user.userfirstName, places: _placesList,
     );
   }
 
@@ -164,8 +172,43 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   Widget _buildGameparkTab() {
-    return const Center(
-      child: Text('Gamepark Tab Content'),
+     return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _useridController,
+              decoration: const InputDecoration(labelText: 'userid'),
+            ),
+            const SizedBox(height: 16.0),
+           
+            TextField(
+              controller: _park_idController,
+              decoration: const InputDecoration(labelText: 'park_id'),
+            ),
+            TextField(
+              controller: _booking_dateController,
+              decoration: const InputDecoration(labelText: 'booking_date'),
+            ),
+            TextField(
+              controller: _num_ticketsController,
+              decoration: const InputDecoration(labelText: 'num_tickets'),
+            ),
+             TextField(
+              controller: _total_priceController,
+              decoration: const InputDecoration(labelText: 'num_tickets'),
+            ),
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: _submitPark,
+              child: const Text('gamepark ticket'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -247,6 +290,47 @@ try {
 }
 
 
+  void _submitPark() async {
+    final String userid = _useridController.text;
+    final String park_id = _park_idController.text;
+    final String booking_date = _booking_dateController.text;
+    final String num_tickets = _num_ticketsController.text;
+    final String total_price = _total_priceController.text;
+
+    if (userid .isEmpty ||
+        park_id.isEmpty ||
+        booking_date.isEmpty ||
+        num_tickets.isEmpty ||
+        total_price.isEmpty) {
+      _showErrorDialog('All fields are required');
+      return;
+    }
+
+    Map<String, dynamic> payload = {
+      'userid': userid,
+      'park_id': park_id,
+      'booking_date': booking_date,
+      'num_tickets': num_tickets,
+      'total_price': total_price,
+    };
+try {
+    final response = await Park(payload);
+    final decodedResponse = response;
+    if (decodedResponse['status'] == 'Success') {
+      logger.i('booking  successfully');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('booking  successfully')),
+      );
+    } else {
+      _showErrorDialog('Failed to add booking: ${decodedResponse['message']}');
+    }
+  } catch (e) {
+    logger.e('Error occurred: $e');
+    _showErrorDialog('An error occurred while adding place: $e');
+  }
+}
+
+
   Future<Map<String, dynamic>> hotel(Map<String, dynamic> payload) async {
     final response = await http.post(
       Uri.parse('http://127.0.0.1/phalc/accommodation'),
@@ -288,7 +372,25 @@ try {
     }
   }
 
+Future<Map<String, dynamic>> Park(Map<String, dynamic> payload) async {
+    final response = await http.post(
+      Uri.parse('http://127.0.0.1/phalc/parkbooking'),
+      body: jsonEncode(payload),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
 
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      var json = jsonDecode(response.body);
+      if (json["message"] != null) {
+        throw Exception(json["message"]);
+      }
+      throw Exception('Failed to Add place: ${response.statusCode}');
+    }
+  }
 
   void _showErrorDialog(String message) {
     showDialog(

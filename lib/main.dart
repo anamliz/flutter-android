@@ -1,147 +1,86 @@
 
-
 import 'package:flutter/material.dart';
-
-import 'package:hidden/screens/home_page.dart';
-//import 'package:hidden/screens/landing.dart';
-import 'package:hive_flutter/adapters.dart';
-
-
+import 'package:hidden/model/booking.dart';
+import 'package:hidden/model/gameparks.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'model/accommondation.dart';
-import 'model/biome.dart';
-import 'model/datum.dart';
+import 'model/attraction.dart';
+import 'model/flight.dart';
+import 'model/hotel.dart';
 import 'model/place.dart';
 import 'model/review.dart';
-import 'model/tundra.dart';
+import 'model/session_token.dart';
+import 'model/taxi.dart';
+import 'model/users.dart';
+import 'screens/home_page.dart';
+import 'screens/landing.dart';
 
 
-
-//import 'screens/landing.dart'; // Import the Places class
-
-void main() async  {
-  
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
   
+  await Hive.initFlutter();
+
+  // Register adapters
+  Hive.registerAdapter(SessionTokenAdapter());
   Hive.registerAdapter(PlaceAdapter());
-  Hive.registerAdapter(BiomeAdapter());
-  Hive.registerAdapter(TundraAdapter());
-  Hive.registerAdapter(DatumAdapter());
   Hive.registerAdapter(HotelAdapter());
- 
-  // Open the 'searchHistory' box
-   await Hive.openBox<String>('searchHistory');
-   await Hive.openBox<Datum>('datumsBox');
-   await Hive.openBox<Place>('PlacesBox');
-   await Hive.openBox<Biome>('biomesBox'); // Initialize _biomesBox
-   await Hive.openBox<Tundra>('tundrasBox');
-   await Hive.openBox<Hotel>('hotelsBox'); 
-   await Hive.openBox<Review>('reviewsBox'); 
-   
+  Hive.registerAdapter(AccommodationAdapter());
+  Hive.registerAdapter(FlightAdapter());
+  Hive.registerAdapter(TaxiAdapter());
+  Hive.registerAdapter(BookingAdapter());
+  Hive.registerAdapter(UsersAdapter());
+  Hive.registerAdapter(ParkAdapter());
+  Hive.registerAdapter(DestinationAdapter());
+  
+
+  // Open Hive boxes
+  await Hive.openBox('session_box');
+  await Hive.openBox<Flight>('flightsBox');
+  await Hive.openBox<Taxi>('taxisBox');
+  await Hive.openBox<Booking>('bookingsBox');
+   await Hive.openBox<Park>('parksBox');
+  await Hive.openBox<Place>('PlacesBox');
+  await Hive.openBox<Accommodation>('AccommodationsBox');
+  await Hive.openBox<Hotel>('hotelsBox');
+  await Hive.openBox<Review>('reviewsBox');
+  await Hive.openBox<Users>('Destination');
+  await Hive.openBox<Users>('usersBox');
+  await Hive.openBox<String>('TokenBox');
+
+
+
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    
-   // final size = MediaQuery.of(context).size;
-    return   MaterialApp(
-      //home: Gameparkpage()
-     //  home: Reviewpage()
-      home: HomePage()
-        );
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late Box sessionBox;
+  late Widget initialRoute;
+
+  @override
+  void initState() {
+    super.initState();
+    sessionBox = Hive.box('session_box');
+    initialRoute = _checkSession() ?  HomePage() : const Landing();
   }
-}
 
-/*import 'package:flutter/material.dart';
-import 'package:hidden/screens/gamepark_page.dart';
-import 'package:hidden/screens/home_page.dart';
-import 'package:hidden/screens/review_page.dart';
-
-import 'model/users.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  bool _checkSession() {
+    var sessionToken = sessionBox.get('session');
+    return sessionToken != null && sessionToken.token.isNotEmpty;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 1, 73, 4),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                   IconButton(
-                    icon: const Icon(Icons.menu),
-                    color: Colors.white,
-                    onPressed: () {
-                      // Add functionality for home icon
-                      print('Home icon pressed!');
-                    },
-                  ),
-
-                
-                  SizedBox(width: 8.0),
-                 Text("Park",
-            //user.userfirstName, // Assuming 'user' is an instance of Users
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-          ),
-
-                ],
-              ),
-              Row(
-                children: [
-
-                     IconButton(
-                    icon: const Icon(Icons.search),
-                    color: Colors.white,
-                    onPressed: () {
-                      // Add functionality for notifications icon
-                      print('search icon pressed!');
-                    },
-                  ),
-
-                   IconButton(
-                    icon: const Icon(Icons.notifications),
-                    color: Colors.white,
-                    onPressed: () {
-                      // Add functionality for notifications icon
-                      print('Notifications icon pressed!');
-                    },
-                  ),
-                 
-                 CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 10,
-                    child: Icon(Icons.person, color: Colors.black),
-                  ),
-                   
-                ],
-              ),
-            ],
-          ),
-        ),
-      
-        body: Gameparkpage(), // Set the body to your Gameparkpage widget
-      ),
+    return const MaterialApp(
+       home: Landing()
     );
   }
-}*/
-
-
-
+}

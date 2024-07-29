@@ -4,7 +4,7 @@ class OTP extends StatefulWidget {
   const OTP({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
+
   _OTPState createState() => _OTPState();
 }
 
@@ -12,9 +12,8 @@ class _OTPState extends State<OTP> {
   final TextEditingController _otpController = TextEditingController();
   
   void _login() {
-    // Implement authentication logic here
+  
     String otp = _otpController.text;
-    
     // Example: Print OTP
     print('otp: $otp');
   }
