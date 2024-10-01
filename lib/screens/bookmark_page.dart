@@ -41,7 +41,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
        
     return CommonScaffold(
       currentIndex: 2,
-      userFirstName: user.userfirstName,
+      userfirstName: user.userfirstName,
       places: BookmarkedPlaces.map((place) => place.toJson()).toList(),
       body: ListView(
         children: [

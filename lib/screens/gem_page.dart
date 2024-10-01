@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:hidden/screens/dashboard_page.dart';
+//import 'package:hidden/screens/dashboard_page.dart';
 import 'package:http/http.dart' as http; 
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -176,7 +176,7 @@ class _GemPageState extends State<GemPage> {
                                               borderRadius: BorderRadius.circular(8.0),
                                               child: Image.asset(
                                                 assetPath,
-                                                width: 400,
+                                                width: 328,
                                                 height: 145,
                                                 fit: BoxFit.cover,
                                               ),
@@ -308,7 +308,7 @@ class _GemPageState extends State<GemPage> {
                   ),
                 ],
               ),
-      ), currentIndex: 2, userFirstName: user .userfirstName, places: [],
+      ), currentIndex: 2, userfirstName: user .userfirstName, places: [],
     );
   }
 }

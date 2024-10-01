@@ -167,7 +167,7 @@ for (var hotelData in hotelList) {
                 }
                 return HotelCard(hotel: hotel.toJson());
               },
-            ), currentIndex: 5, userFirstName: user.userfirstName, places:const [],  
+            ), currentIndex: 5, userfirstName: user.userfirstName, places:const [],  
 
 
             

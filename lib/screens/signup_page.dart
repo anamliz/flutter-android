@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:logger/logger.dart';
 
+import '../widgets/common_scaffold.dart';
 import 'login_page.dart';
 
 final Logger logger = Logger();
@@ -27,10 +28,8 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Signup Page'),
-      ),
+    return CommonScaffold(
+     
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -75,23 +74,25 @@ class _SignupPageState extends State<SignupPage> {
                 onPressed: _submitForm,
                 child: const Text('Signup'),
               ),
-             /*  const SizedBox(height: 2.0),
-            GestureDetector(
-              onTap: () {
-                // Navigate to homepage
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const LoginPage(), 
-                  ),
-                );
-              },
-            ),*/
+             const SizedBox(height: 16.0),
+              // Add login link here
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const LoginPage(),
+                    ),
+                  );
+                },
+                child: const Text('Already have an account? Login here'),
+              ),
             ],
           ),
         ),
-      ),
+      ), currentIndex: 1, userfirstName: '', places: [],
     );
   }
+
 
   void _submitForm() async {
     final String userfirstName = _userfirstNameController.text;

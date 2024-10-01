@@ -349,7 +349,7 @@ class _GameparkpageState extends State<Gameparkpage> {
             ),
           ],
         ),
-      ), currentIndex: 7, userFirstName: user.userfirstName, places: [],
+      ), currentIndex: 7, userfirstName: user.userfirstName, places: [],
     );
   }
 }

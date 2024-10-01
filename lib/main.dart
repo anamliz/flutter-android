@@ -79,8 +79,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-       home: Landing()
+    return  MaterialApp(
+      // home: Landing()
+      home: HomePage()
     );
   }
 }

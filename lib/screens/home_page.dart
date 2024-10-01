@@ -8,7 +8,7 @@ import 'package:hive/hive.dart';
 import '../model/hotel.dart';
 import '../model/place.dart';
 import '../model/users.dart';
-import '../screens/review_page.dart';
+//import '../screens/review_page.dart';
 import '../screens/accommodation_page.dart';
 import '../screens/gamepark_page.dart';
 import '../screens/gem_page.dart';
@@ -16,6 +16,7 @@ import '../screens/transport_page.dart';
 import '../widgets/images_widgets.dart';
 import 'booking_page.dart';
 import 'dashboard_page.dart';
+import 'signup_page.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
@@ -48,7 +49,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _initializeData() async {
     try {
       _placesBox = await Hive.openBox<Place>('PlacesBox');
-      //_placesBox.clear();
+      _placesBox.clear();
       // Add a print statement to log the contents of _placesBox
 print('Places Box Initialized: $_placesBox');
 
@@ -234,7 +235,7 @@ print('Places Box Initialized: $_placesBox');
   Widget build(BuildContext context) {
     return CommonScaffold(
       currentIndex: 0,
-      userFirstName: user.userfirstName,
+      userfirstName: user.userfirstName,
       places: _placesList,
       
      
@@ -325,7 +326,7 @@ print('Places Box Initialized: $_placesBox');
                                     },
                                   ),
                                   const SizedBox(width: 15),
-                                  CircularItem(
+                                 /* CircularItem(
                                     icon: Icons.video_call,
                                     text: 'Forum',
                                     onTap: () {
@@ -335,7 +336,7 @@ print('Places Box Initialized: $_placesBox');
                                       );
                                     },
                                   ),
-                                  const SizedBox(width: 15),
+                                  const SizedBox(width: 15),*/
                                   CircularItem(
                                     icon: Icons.explore,
                                     text: 'Dashboard',
@@ -482,8 +483,7 @@ print('Places Box Initialized: $_placesBox');
                     const SizedBox(height: 1.0),
                     
                      Text(
-                      'cityName: ${accommodation.cityName}',
-                       
+                      'destId: ${accommodation.destId}',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 16.0),
@@ -519,7 +519,7 @@ print('Places Box Initialized: $_placesBox');
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 16.0),
                     ),
-                    const SizedBox(height: 1.0),
+                    const SizedBox(height: 1.0), 
                      Text(
                       'longitude:${accommodation.longitude.toString()}',
                       maxLines: 2,
@@ -598,7 +598,8 @@ print('Places Box Initialized: $_placesBox');
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const BookingPage(),
+                                  //builder: (context) => const BookingPage(),
+                                  builder: (context) => const SignupPage(),
                                 
                                 ),
                               );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
+//import 'package:hive_flutter/adapters.dart';
 
-import '../model/users.dart';
+//import '../model/users.dart';
 
 class CircularItem extends StatelessWidget {
   final IconData icon;

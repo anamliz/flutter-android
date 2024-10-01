@@ -69,7 +69,7 @@ class _ParkbookingPageState extends State<ParkbookingPage> {
             ],
           ),
         ),
-      ), currentIndex: 5, userFirstName: user.userfirstName, places: [],
+      ), currentIndex: 5, userfirstName: user.userfirstName, places: [],
     );
   }
 
@@ -123,6 +123,7 @@ class _ParkbookingPageState extends State<ParkbookingPage> {
       body: jsonEncode(payload),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        
       },
     );
 

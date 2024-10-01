@@ -1,8 +1,99 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:intl/intl.dart'; // Import intl package for date formatting
 
+// Flight model
+class Flight {
+  int id;
+  String departureCity;
+  String arrivalCity;
+  String departureDate;
+  String arrivalDate;
+  int price;
+
+  Flight({
+    required this.id,
+    required this.departureCity,
+    required this.arrivalCity,
+    required this.departureDate,
+    required this.arrivalDate,
+    required this.price,
+  });
+
+  factory Flight.fromJson(Map<String, dynamic> json) {
+    return Flight(
+      id: json['id'],
+      departureCity: json['departureCity'],
+      arrivalCity: json['arrivalCity'],
+      departureDate: json['departureDate'],
+      arrivalDate: json['arrivalDate'],
+      price: json['price'],
+    );
+  }
+}
+
+// Booking model
+class Booking {
+  int id;
+  int flightId;
+  String passengerName;
+  String contactNumber;
+  String email;
+
+  Booking({
+    required this.id,
+    required this.flightId,
+    required this.passengerName,
+    required this.contactNumber,
+    required this.email,
+  });
+
+  factory Booking.fromJson(Map<String, dynamic> json) {
+    return Booking(
+      id: json['id'],
+      flightId: json['flightId'],
+      passengerName: json['passengerName'],
+      contactNumber: json['contactNumber'],
+      email: json['email'],
+    );
+  }
+}
+
+// API Client for fetching flights and booking flights
+class ApiClient {
+  final String _baseUrl = 'https://your-api-url.com/api';
+
+  Future<List<Flight>> getFlights() async {
+    final response = await http.get(Uri.parse('$_baseUrl/flights'));
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      return (jsonData as List).map((jsonFlight) => Flight.fromJson(jsonFlight)).toList();
+    } else {
+      throw Exception('Failed to load flights');
+    }
+  }
+
+  Future<Booking> bookFlight(int flightId, String passengerName, String contactNumber, String email) async {
+    final response = await http.post(Uri.parse('$_baseUrl/bookings'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'flightId': flightId,
+          'passengerName': passengerName,
+          'contactNumber': contactNumber,
+          'email': email,
+        }));
+
+    if (response.statusCode == 201) {
+      final jsonData = jsonDecode(response.body);
+      return Booking.fromJson(jsonData);
+    } else {
+      throw Exception('Failed to book flight');
+    }
+  }
+}
+
+// Main app
 void main() {
   runApp(MyApp());
 }
@@ -11,359 +102,123 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Booking App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: BookingPage(),
+      title: 'Flight Booking System',
+      home: FlightListPage(),
     );
   }
 }
 
-class BookingPage extends StatefulWidget {
+// Flight list page
+class FlightListPage extends StatefulWidget {
   @override
-  _BookingPageState createState() => _BookingPageState();
+  _FlightListPageState createState() => _FlightListPageState();
 }
 
-class _BookingPageState extends State<BookingPage> {
-  final _formKey = GlobalKey<FormState>();
-  String _checkInDate = '';
-  String _checkOutDate = '';
-  int _numAdults = 1;
-  int _numChildren = 0;
-  int _numRooms = 1;
-  String _roomType = 'Single';
-  double _totalPrice = 0.0;
+class _FlightListPageState extends State<FlightListPage> {
+  List<Flight> _flights = [];
+  final _apiClient = ApiClient();
 
-  final List<String> _roomTypes = ['Single', 'Double', 'Suite'];
-
-  Future<void> _submitBooking() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-
-      // Calculate total price (example calculation)
-      _totalPrice = (_numRooms * 100.0) + (_numAdults * 50.0) + (_numChildren * 25.0);
-
-      // Replace with your actual backend URL
-      const url = 'http://127.0.0.1/phalc/booking';
-
-      // Replace with your actual JWT token
-      const token = 'your_jwt_token';
-
-      try {
-        final response = await http.post(
-          Uri.parse(url),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-          body: json.encode({
-            'checkInDate': _checkInDate,
-            'checkOutDate': _checkOutDate,
-            'numAdults': _numAdults,
-            'numChildren': _numChildren,
-            'numRooms': _numRooms,
-            'roomType': _roomType,
-            'totalPrice': _totalPrice,
-          }),
-        );
-
-        if (response.statusCode == 200) {
-          final responseData = json.decode(response.body);
-          final bookingId = responseData['booking_id'];
-
-          // Navigate to payment page
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PaymentPage(bookingId: bookingId),
-            ),
-          );
-        } else {
-          // Handle error
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Booking failed: ${response.reasonPhrase}')),
-          );
-        }
-      } catch (e) {
-        // Handle network or server errors
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-    }
+  @override
+  void initState() {
+    super.initState();
+    _loadFlights();
   }
 
-  void _showDatePicker({required bool isCheckIn}) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(DateTime.now().year + 1),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            primaryColor: Colors.blue, // Adjust your theme color here
-          
-            colorScheme: ColorScheme.light(primary: Colors.blue),
-            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null && picked != DateTime.now()) {
-      setState(() {
-        if (isCheckIn) {
-          _checkInDate = DateFormat('yyyy-MM-dd').format(picked);
-        } else {
-          _checkOutDate = DateFormat('yyyy-MM-dd').format(picked);
-        }
-      });
-    }
+  Future<void> _loadFlights() async {
+    final flights = await _apiClient.getFlights();
+    setState(() {
+      _flights = flights;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Book a Room'),
+        title: Text('Flight Booking System'),
       ),
+      body: _flights.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: _flights.length,
+              itemBuilder: (context, index) {
+                final flight = _flights[index];
+                return ListTile(
+                  title: Text('${flight.departureCity} to ${flight.arrivalCity}'),
+                  subtitle: Text('Departure: ${flight.departureDate}'),
+                  trailing: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => BookingPage(flight: flight)),
+                      );
+                    },
+                    child: Text('Book'),
+                  ),
+                );
+              },
+            ),
+    );
+  }
+}
+
+// Booking page
+class BookingPage extends StatelessWidget {
+  final Flight flight;
+
+  BookingPage({required this.flight});
+
+  @override
+  Widget build(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController contactController = TextEditingController();
+    final TextEditingController emailController = TextEditingController();
+
+    return Scaffold(
+      appBar: AppBar(title: Text('Book Flight')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: ListView(
+          child: Column(
             children: [
-              ListTile(
-                title: Text('Check-in Date: $_checkInDate'),
-                trailing: IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: () => _showDatePicker(isCheckIn: true),
-                ),
+              Text('Flight: ${flight.departureCity} to ${flight.arrivalCity}'),
+              TextFormField(
+                controller: nameController,
+                decoration: InputDecoration(labelText: 'Passenger Name'),
               ),
-              ListTile(
-                title: Text('Check-out Date: $_checkOutDate'),
-                trailing: IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: () => _showDatePicker(isCheckIn: false),
-                ),
+              TextFormField(
+                controller: contactController,
+                decoration: InputDecoration(labelText: 'Contact Number'),
               ),
-              _buildIncrementDecrementTile('Number of Adults', _numAdults, (newValue) {
-                setState(() {
-                  _numAdults = newValue;
-                });
-              }),
-              _buildIncrementDecrementTile('Number of Children', _numChildren, (newValue) {
-                setState(() {
-                  _numChildren = newValue;
-                });
-              }),
-              _buildIncrementDecrementTile('Number of Rooms', _numRooms, (newValue) {
-                setState(() {
-                  _numRooms = newValue;
-                });
-              }),
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(labelText: 'Room Type'),
-                value: _roomType,
-                items: _roomTypes
-                    .map((type) => DropdownMenuItem<String>(
-                          value: type,
-                          child: Text(type),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _roomType = value!;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select a room type';
-                  }
-                  return null;
-                },
+              TextFormField(
+                controller: emailController,
+                decoration: InputDecoration(labelText: 'Email'),
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _submitBooking,
-                child: Text('Book Now'),
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final apiClient = ApiClient();
+                    await apiClient.bookFlight(
+                      flight.id,
+                      nameController.text,
+                      contactController.text,
+                      emailController.text,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Flight booked successfully!')),
+                    );
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text('Confirm Booking'),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildIncrementDecrementTile(String label, int value, ValueChanged<int> onChanged) {
-    return ListTile(
-      title: Text(label),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: Icon(Icons.remove),
-            onPressed: () {
-              if (value > 0) {
-                onChanged(value - 1);
-              }
-            },
-          ),
-          Text(value.toString()),
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              onChanged(value + 1);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class PaymentPage extends StatefulWidget {
-  final int bookingId;
-
-  PaymentPage({required this.bookingId});
-
-  @override
-  _PaymentPageState createState() => _PaymentPageState();
-}
-
-class _PaymentPageState extends State<PaymentPage> {
-  Map<String, dynamic>? bookingDetails;
-  bool isLoading = true;
-  String mpesaPin = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchBookingDetails();
-  }
-
-  Future<void> _fetchBookingDetails() async {
-    try {
-      final response = await http.get(
-        Uri.parse('http://127.0.0.1/phalc/booking/${widget.bookingId}'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer your_jwt_token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          bookingDetails = json.decode(response.body);
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load booking details');
-      }
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
-    }
-  }
-
-  Future<void> _processPayment() async {
-    try {
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1/phalc/payment'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer your_jwt_token',
-        },
-        body: json.encode({
-          'bookingId': widget.bookingId,
-          'mpesaPin': mpesaPin,
-          'amount': bookingDetails?['totalPrice'],
-        }),
-      );
-
-      final responseData = json.decode(response.body);
-      if (response.statusCode == 200 && responseData['status'] == 'Success') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Payment successful')),
-        );
-        Navigator.of(context).pop();
-      } else {
-        throw Exception(responseData['message'] ?? 'Payment failed');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Payment'),
-      ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : bookingDetails == null
-              ? Center(child: Text('No booking details available'))
-              : Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Booking Details:', style: TextStyle(fontSize: 20)),
-                      SizedBox(height: 10),
-                      Text('Check-in Date: ${bookingDetails?['checkInDate']}'),
-                      Text('Check-out Date: ${bookingDetails?['checkOutDate']}'),
-                      Text('Number of Adults: ${bookingDetails?['numAdults']}'),
-                      Text('Number of Children: ${bookingDetails?['numChildren']}'),
-                      Text('Number of Rooms: ${bookingDetails?['numRooms']}'),
-                      Text('Room Type: ${bookingDetails?['roomType']}'),
-                      Text('Total Price: \$${bookingDetails?['totalPrice']}'),
-                      SizedBox(height: 20),
-                      TextField(
-                        decoration: InputDecoration(
-                          labelText: 'Mpesa PIN',
-                          border: OutlineInputBorder(),
-                        ),
-                        obscureText: true,
-                        onChanged: (value) {
-                          setState(() {
-                            mpesaPin = value;
-                          });
-                        },
-                      ),
-                      SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('Cancel'),
-                          ),
-                          ElevatedButton(
-                            onPressed: mpesaPin.isEmpty
-                                ? null
-                                : () {
-                                    _processPayment();
-                                  },
-                            child: Text('Continue'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
     );
   }
 }

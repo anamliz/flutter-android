@@ -90,7 +90,7 @@ class _DashboardPageState extends State<DashboardPage>
           ),
         ],
 
-      ), currentIndex: 4, userFirstName: user.userfirstName, places: _placesList,
+      ), currentIndex: 4, userfirstName: user.userfirstName, places: _placesList,
     );
   }
 

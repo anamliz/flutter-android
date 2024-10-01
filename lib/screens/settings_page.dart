@@ -124,7 +124,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ],
         ),
-      ), currentIndex: 3, userFirstName: user.userfirstName, places: _placesList,
+      ), currentIndex: 3, userfirstName: user.userfirstName, places: _placesList,
     );
   }
 }

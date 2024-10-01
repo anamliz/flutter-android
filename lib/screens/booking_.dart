@@ -337,7 +337,7 @@ class _BookingPageState extends State<BookingPage> {
             ),
           ],
         ),
-      ), currentIndex: 6, userFirstName: '', places: [],
+      ), currentIndex: 6, userfirstName: '', places: [],
     );
   }
 }
@@ -544,7 +544,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
             ],
           ),
         ),
-      ), currentIndex: 6, userFirstName: '', places: [],
+      ), currentIndex: 6, userfirstName: '', places: [],
     );
   }
 }

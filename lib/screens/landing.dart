@@ -4,9 +4,14 @@ import 'signup_page.dart';
 
 import 'login_page.dart';
 
-class Landing extends StatelessWidget {
+class Landing extends StatefulWidget {
   const Landing({super.key});
 
+  @override
+  State<Landing> createState() => _LandingState();
+}
+
+class _LandingState extends State<Landing> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,15 +19,16 @@ class Landing extends StatelessWidget {
         title: const Text('HiddenHaven'),
       ),
       body: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.all(20), // Add margin around the Column
+        //child: Container(
+          //margin: const EdgeInsets.all(20), 
           child: Padding(
-            padding: const EdgeInsets.all(8.0), // Add padding inside the Column
+            padding: const EdgeInsets.all(16.0), 
 
         child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+         mainAxisAlignment: MainAxisAlignment.center,
+         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          
+         
          const Text('Uncovering Earth’s hidden ecological gem and natural treasure. ',
             style: TextStyle(
               fontSize: 14,
@@ -45,7 +51,7 @@ class Landing extends StatelessWidget {
                             fit: BoxFit.contain,
                           ),
               ),
-               
+               //const SizedBox(width: 16.0),
 
          // SizedBox(height: 2), // Add spacing between image and text
           const Text('Embark on a journey of Exploration, where you will delve into unique biome',
@@ -96,7 +102,7 @@ class Landing extends StatelessWidget {
       ),
           ),
       ),
-      ),
+      //),
     );
   }
 }

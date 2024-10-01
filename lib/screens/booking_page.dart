@@ -80,8 +80,6 @@ class _BookingPageState extends State<BookingPage> {
          _tokenBox.get('jwtToken');
       });
 
-     
-
     } catch (e) {
       logger.e('Error initializing data: $e');
     }
@@ -127,13 +125,16 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
+final checkInDateController = TextEditingController();
+final checkOutDateController = TextEditingController();
 
-  DateTime? _checkInDate;
-  DateTime? _checkOutDate;
-  int _numAdults = 2;
-  int _numChildren = 0;
+  DateTime? checkInDate;
+  DateTime? checkOutDate;
+  int numAdults = 2;
+  int numChildren = 0;
   int numRooms = 1;
   double totalPrice = 0.0;
+  
   
   String selectedRoomType = 'Superior Double Room';
   double baseRoomPrice = 1000.0;
@@ -144,10 +145,11 @@ class _BookingPageState extends State<BookingPage> {
     RoomType('Three-Bedroom Villa', 2000.0, 'Private villa with multiple bedrooms and living space.'),
   ];
 
+  
   Future<void> _selectDate(BuildContext context, bool isCheckInDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isCheckInDate ? _checkInDate ?? DateTime.now() : _checkOutDate ?? DateTime.now(),
+      initialDate: isCheckInDate ? checkInDate ?? DateTime.now() : checkOutDate ?? DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(DateTime.now().year + 1),
     );
@@ -155,14 +157,15 @@ class _BookingPageState extends State<BookingPage> {
     if (picked != null) {
       setState(() {
         if (isCheckInDate) {
-          _checkInDate = picked;
+          checkInDate = picked;
+          checkInDateController.text = DateFormat('yyyy-MM-dd').format(checkInDate!);
         } else {
-          _checkOutDate = picked;
+          checkOutDate = picked;
+          checkOutDateController.text = DateFormat('yyyy-MM-dd').format(checkOutDate!);
         }
       });
     }
   }
-
   void _showDropdownMenu(BuildContext context) {
     showDialog(
       context: context,
@@ -182,17 +185,17 @@ class _BookingPageState extends State<BookingPage> {
                         icon: const Icon(Icons.remove),
                         onPressed: () {
                           setState(() {
-                            _numAdults -= 1;
-                            if (_numAdults < 0) _numAdults = 0;
+                            numAdults -= 1;
+                            if (numAdults < 0) numAdults = 0;
                           });
                         },
                       ),
-                      Text(_numAdults.toString()),
+                      Text(numAdults.toString()),
                       IconButton(
                         icon: const Icon(Icons.add),
                         onPressed: () {
                           setState(() {
-                            _numAdults += 1;
+                            numAdults += 1;
                           });
                         },
                       ),
@@ -205,17 +208,17 @@ class _BookingPageState extends State<BookingPage> {
                         icon: const Icon(Icons.remove),
                         onPressed: () {
                           setState(() {
-                            _numChildren -= 1;
-                            if (_numChildren < 0) _numChildren = 0;
+                            numChildren -= 1;
+                            if (numChildren < 0) numChildren = 0;
                           });
                         },
                       ),
-                      Text(_numChildren.toString()),
+                      Text(numChildren.toString()),
                       IconButton(
                         icon: const Icon(Icons.add),
                         onPressed: () {
                           setState(() {
-                            _numChildren += 1;
+                            numChildren += 1;
                           });
                         },
                       ),
@@ -282,13 +285,14 @@ class _BookingPageState extends State<BookingPage> {
       },
     );
   }
-Future<void> _proceedToUserDetails() async {
-  if (_checkInDate != null && _checkOutDate != null) {
+
+Future<void> _submitForm() async {
+ if (checkInDate != null && checkOutDate != null) {
     RoomType selectedType =
         roomTypes.firstWhere((type) => type.name == selectedRoomType);
     double totalPrice = numRooms * selectedType.price;
 
-    if (_numAdults < 1 || numRooms < 1) {
+    if (numAdults < 1 || numRooms < 1) {
       print('Number of adults and rooms must be at least 1.');
       return;
     }
@@ -302,19 +306,15 @@ Future<void> _proceedToUserDetails() async {
       print('Total price must be greater than zero.');
       return;
     }
+final String checkInDateStr = DateFormat('yyyy-MM-dd').format(checkInDate!);
+      final String checkOutDateStr = DateFormat('yyyy-MM-dd').format(checkOutDate!);
 
-    String checkInDateString = _checkInDate!.toIso8601String();
-    String checkOutDateString = _checkOutDate!.toIso8601String();
 
-     // JWT token (retrieved from a secure storage or user session)
-      //final String token = 'your_jwt_token_here';
-
-   
     Map<String, dynamic> payload = {
-      "checkInDate": checkInDateString,
-      "checkOutDate": checkOutDateString,
-      "numAdults": _numAdults,
-      "numChildren": _numChildren,
+      "checkInDate": checkInDateStr,
+      "checkOutDate": checkOutDateStr,
+      "numAdults": numAdults,
+      "numChildren": numChildren,
       "numRooms": numRooms,
       "roomType": selectedRoomType,
       "totalPrice": totalPrice,
@@ -327,27 +327,28 @@ Future<void> _proceedToUserDetails() async {
     print('Payload for booking request: $payload');
 
     if (token == null) {
-      print('User not authenticated. Token missing.');
+      //print('User not authenticated. Token missing.');
       logger.e('User not authenticated. Token missing.');
       throw Exception('User not authenticated. Token missing.');
     }
 
     try {
-      print('Proceeding with booking request.');
-      print('Payload: $payload');
-      print('Token: $token');
+      //print('Proceeding with booking request.');
+      //print('Payload: $payload');
+      //print('Token: $token');
 
       final response = await booking(payload, token);
 
       if (response['status'] == 'Success') {
-        Navigator.push(
-          context,
+        logger.i(' booking successfully');
+
+        Navigator.push( context,
           MaterialPageRoute(
             builder: (context) => BookingConfirmationScreen(
-              checkInDate: _checkInDate!,
-              checkOutDate: _checkOutDate!,
-              numAdults: _numAdults,
-              numChildren: _numChildren,
+              checkInDate: checkInDate!,
+              checkOutDate: checkOutDate!,
+              numAdults: numAdults,
+              numChildren: numChildren,
               numRooms: numRooms,
               selectedRoomType: selectedRoomType,
               totalPrice: totalPrice,
@@ -371,29 +372,33 @@ Future<void> _proceedToUserDetails() async {
 Future<Map<String, dynamic>> booking(
     Map<String, dynamic> payload, String token) async {
   try {
-    print('Making booking request with payload: $payload');
-    print('Using token: $token');
+   // print('Making booking request with payload: $payload');
+   // print('Using token: $token');
+
+    final headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    };
+    //print('Headers: $headers');
 
     final response = await http.post(
       Uri.parse('http://127.0.0.1/phalc/booking'),
       body: jsonEncode(payload),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-         'Authorization': 'Bearer $token',
-        },
-      
+     headers: headers,
+        
     );
 
-    print('Booking Response status code: ${response.statusCode}');
-    print('Booking Response body: ${response.body}');
-    print('header response: ${response.body}');
-
-   
+    //print('Booking Response status code: ${response.statusCode}');
+   // print('Booking Response body: ${response.body}');
+    
+   // print('Header response: ${response.headers}');
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
+
     } else if (response.statusCode == 401) {
       throw Exception('Unauthorized request: ${response.body}');
+   
     } else {
       var json = jsonDecode(response.body);
       if (json["message"] != null) {
@@ -402,11 +407,10 @@ Future<Map<String, dynamic>> booking(
       throw Exception('Failed to Add booking: ${response.statusCode}');
     }
   } catch (e) {
-    print('Error occurred in booking function: $e');
+   // print('Error occurred in booking function: $e');
     throw Exception('Error booking room: $e');
   }
 }
-
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -457,7 +461,7 @@ Future<Map<String, dynamic>> booking(
                             hintText: 'Select Check-in Date',
                           ),
                           child: Text(
-                            _checkInDate == null ? 'Select Check-in Date' : DateFormat.yMMMd().format(_checkInDate!),
+                            checkInDate == null ? 'Select Check-in Date' : DateFormat.yMMMd().format(checkInDate!),
                           ),
                         ),
                       ),
@@ -477,7 +481,7 @@ Future<Map<String, dynamic>> booking(
                             hintText: 'Select Check-out Date',
                           ),
                           child: Text(
-                            _checkOutDate == null ? 'Select Check-out Date' : DateFormat.yMMMd().format(_checkOutDate!),
+                            checkOutDate == null ? 'Select Check-out Date' : DateFormat.yMMMd().format(checkOutDate!),
                           ),
                         ),
                       ),
@@ -539,13 +543,13 @@ Future<Map<String, dynamic>> booking(
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
-                onPressed: _proceedToUserDetails,
+                onPressed: _submitForm,
                 child: const Text('Book Now'),
               ),
             ),
           ],
         ),
-      ), currentIndex: 6, userFirstName: user.userfirstName, places: [],
+      ), currentIndex: 6, userfirstName: user.userfirstName, places: [],
     );
   }
 }
@@ -593,10 +597,6 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cardNumberController = TextEditingController();
-    final cardHolderNameController = TextEditingController();
-    final paymentMethod = ValueNotifier<String>('Credit/Debit Card (ATM)');
-
     return CommonScaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -617,162 +617,79 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
               Text('Selected Room Type: ${widget.selectedRoomType}'),
               Text('Total Price: \$${widget.totalPrice.toStringAsFixed(2)}'),
               const SizedBox(height: 24.0),
-              ValueListenableBuilder<String>(
-                valueListenable: paymentMethod,
-                builder: (context, value, child) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Payment Method',
-                        style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8.0),
-                      DropdownButtonFormField<String>(
-                        value: value,
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'Credit/Debit Card (ATM)',
-                            child: Text('Credit/Debit Card (ATM)'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Cash',
-                            child: Text('Cash'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'MPESA',
-                            child: Text('MPESA'),
-                          ),
-                        ],
-                        onChanged: (newValue) {
-                          paymentMethod.value = newValue!;
-                        },
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 16.0),
-                      if (value == 'Credit/Debit Card (ATM)') ...[
-                        TextField(
-                          controller: cardNumberController,
-                          decoration: const InputDecoration(
-                            labelText: 'Card Number',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                        ),
-                        const SizedBox(height: 16.0),
-                        TextField(
-                          controller: cardHolderNameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Cardholder Name',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ] else if (value == 'MPESA') ...[
-                        const SizedBox(height: 16.0),
-                        const Text(
-                          'Confirm MPESA Payment',
-                          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 12.0),
-                        Text('Amount to be Paid: \$${widget.totalPrice.toStringAsFixed(2)}'),
-                        const SizedBox(height: 24.0),
-                        TextField(
-                          onChanged: (value) {
-                            setState(() {
-                              print('MPESA PIN entered: $value');
-                              _mpesaPin = value;
-                            });
-                          },
-                          decoration: const InputDecoration(
-                            labelText: 'MPESA PIN',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                          obscureText: true,
-                        ),
-                        const SizedBox(height: 24.0),
-                      ],
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              if (value == 'MPESA') {
-                                _confirmTransaction();
-                              } else {
-                                _processPayment(
-                                  context,
-                                  value,
-                                  cardNumberController.text,
-                                  cardHolderNameController.text,
-                                  _mpesaPin,
-                                );
-                              }
-                            },
-                            child: const Text('Confirm'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Cancel'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24.0),
-                      if (_isTransactionConfirmed)
-                        const Text(
-                          'Transaction Confirmed!',
-                          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                        ),
-                    ],
-                  );
-                },
+              const Text(
+                'Confirm MPESA Payment',
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
               ),
+              const SizedBox(height: 12.0),
+              Text('Amount to be Paid: \$${widget.totalPrice.toStringAsFixed(2)}'),
+              const SizedBox(height: 24.0),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    _mpesaPin = value;
+                  });
+                },
+                decoration: const InputDecoration(
+                  labelText: 'MPESA PIN',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                obscureText: true,
+              ),
+              const SizedBox(height: 24.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      _confirmTransaction();
+                      if (_isTransactionConfirmed) {
+                        _processPayment('MPESA', _mpesaPin);
+                      }
+                    },
+                    child: const Text('Confirm'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24.0),
+              if (_isTransactionConfirmed)
+                const Text(
+                  'Transaction Confirmed!',
+                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                ),
             ],
           ),
         ),
-      ), currentIndex: 6, userFirstName: user.userfirstName, places: [],
+      ), currentIndex: 0, userfirstName: '', places: [],
     );
   }
 
-  void _processPayment(
-    BuildContext context,
-    String paymentMethod,
-    String cardNumber,
-    String cardHolderName,
-    String mpesaPin,
-  ) {
-    if (paymentMethod == 'Credit/Debit Card (ATM)' &&
-        (cardNumber.isEmpty || cardHolderName.isEmpty)) {
-      _showErrorDialog('Please fill in all payment details.');
-    } else if (paymentMethod == 'MPESA' && mpesaPin.isEmpty) {
+  void _processPayment(String paymentMethod, String mpesaPin) {
+    if (mpesaPin.isEmpty) {
       _showErrorDialog('Please enter your MPESA PIN.');
-    } else {
-      print('Processing payment...');
-      print('Payment Method: $paymentMethod');
-      if (paymentMethod == 'Credit/Debit Card (ATM)') {
-        print('Card Number: $cardNumber');
-        print('Cardholder Name: $cardHolderName');
-      } else if (paymentMethod == 'MPESA') {
-        print('MPESA PIN: $mpesaPin');
-      }
-      Future.delayed(const Duration(seconds: 2), () {
-        print('Payment successful!');
-        setState(() {
-          _isTransactionConfirmed = true;
-        });
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const PaymentSuccessScreen(),
-          ),
-        );
-      });
+      return;
     }
+
+    print('Processing payment...');
+    print('Payment Method: $paymentMethod');
+    print('MPESA PIN: $mpesaPin');
+    
+    Future.delayed(const Duration(seconds: 2), () {
+      print('Payment successful!');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const PaymentSuccessScreen(),
+        ),
+      );
+    });
   }
 
   void _showErrorDialog(String message) {
@@ -796,6 +713,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
   }
 }
 
+
 class PaymentSuccessScreen extends StatelessWidget {
   const PaymentSuccessScreen({super.key});
 
@@ -818,7 +736,7 @@ class PaymentSuccessScreen extends StatelessWidget {
             ),
           ],
         ),
-      ), currentIndex: 5, userFirstName: user.userfirstName, places: [],
+      ), currentIndex: 5, userfirstName: user.userfirstName, places: [],
     );
   }
 }

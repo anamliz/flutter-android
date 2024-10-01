@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:hidden/widgets/common_scaffold.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:logger/logger.dart';
 import '../model/users.dart';
 
+import 'booking_.dart';
 import 'home_page.dart';
 
 final Logger logger = Logger();
@@ -35,7 +37,9 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _initializeData() async {
     try {
       _usersBox = await Hive.openBox<Users>('UsersBox');
+      //_usersBox.clear();
       _tokenBox = await Hive.openBox<String>('TokenBox');
+     // _tokenBox.clear();
       print('users Box Initialized: $_usersBox');
       print('token Box Initialized: $_tokenBox');
       await _fetchUsers();
@@ -88,10 +92,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-      ),
+    return CommonScaffold(
+    
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -117,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
-      ),
+      ), currentIndex: 1, userfirstName: '', places: [],
     );
   }
 
@@ -140,7 +142,11 @@ class _LoginPageState extends State<LoginPage> {
       print(response);
       if (response['status'] == 'success') {
         logger.i('user logged in successfully');
+
         _tokenBox.put('jwtToken', response['token']);
+
+              
+
         logger.i('tokenBox now has ${_tokenBox.length} entries');
         logger.i('Token stored in tokenBox: ${_tokenBox.get('jwtToken')}');
 
@@ -148,7 +154,8 @@ class _LoginPageState extends State<LoginPage> {
 
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => HomePage(),
+           // builder: (context) => HomePage(),
+              builder: (context) => const BookingPage(),
           ),
         );
       } else {

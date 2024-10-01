@@ -195,17 +195,17 @@ class _TransportPageState extends State<TransportPage> {
     }
   }
 
-// ignore: non_constant_identifier_names
+
 final _flight_dateController = TextEditingController();
-  // ignore: non_constant_identifier_names
+  
   final _departure_timeController = TextEditingController();
-  // ignore: non_constant_identifier_names
+  
   final _number_of_ticketsController = TextEditingController();
 	
 
   String? _selectedFrom;
   String? _selectedTo;
-  // ignore: non_constant_identifier_names
+  
   String? _selectedflight_type;
   final bool _isSearching = false;
   DateTime? _selectedDate;
@@ -228,9 +228,7 @@ final _flight_dateController = TextEditingController();
   final List<String> _flight_types = ['Economy', 'Business', 'First Class'];
 
   Future<void> _searchFlights() async {
-    //setState(() {
-     // _isSearching = true;
-    //});
+   
 
 
     final String fromLocation = _selectedFrom ?? '';
@@ -264,6 +262,8 @@ final _flight_dateController = TextEditingController();
 
       if (response['status'] == 'Success') {
         logger.i('booking added successfully');
+         // Call the function to fetch flights after successful booking
+        await _fetchFlights();
         // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('booking added successfully')),
@@ -546,7 +546,7 @@ Future<Map<String, dynamic>> vehicle(Map<String, dynamic> payload) async {
               ElevatedButton.icon(
                 onPressed: _searchFlights,
                 icon: const Icon(Icons.search),
-                label: const Text('Search Flights'),
+                label: const Text('SUBMIT'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   textStyle: const TextStyle(fontSize: 18),
@@ -554,12 +554,7 @@ Future<Map<String, dynamic>> vehicle(Map<String, dynamic> payload) async {
               ),
             const SizedBox(height: 20),
 
-            ElevatedButton(
-              onPressed: () {
-                _fetchFlights();
-              },
-              child: Text('Search'),
-            ),
+          
 
                     Container(
                       height: 455,
@@ -1020,7 +1015,7 @@ Future<Map<String, dynamic>> vehicle(Map<String, dynamic> payload) async {
             ),
           ],
         ),
-      ), currentIndex: 7, userFirstName: user.userfirstName, places: [],
+      ), currentIndex: 7, userfirstName: user.userfirstName, places: [],
     );
   }
 

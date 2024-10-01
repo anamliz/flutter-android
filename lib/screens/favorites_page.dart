@@ -41,7 +41,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
        
     return CommonScaffold(
       currentIndex: 1,
-      userFirstName: user.userfirstName,
+      userfirstName: user.userfirstName,
       places: favoritePlaces.map((place) => place.toJson()).toList(),
       body: ListView(
         children: [
@@ -114,7 +114,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             Accommodation accommodation = accommodations[index];
             return ListTile(
              leading: CircleAvatar(
-                     backgroundImage: NetworkImage('https://example.com/${accommodation.imageUrl}'), 
+                     backgroundImage: NetworkImage('/phalc/hotel/${accommodation.imageUrl}'), 
                 //backgroundImage: AssetImage('assets/images/${accommodation.imageUrl}'),
               ),
               title: Text(accommodation.name),
